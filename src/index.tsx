@@ -1,4 +1,5 @@
 import html from '@kitajs/html';
+import { clsx } from 'clsx';
 import { z } from 'zod';
 import express from 'express';
 
@@ -16,10 +17,10 @@ app.get('/', (_req, res) => {
           <h2 class="text-3xl">Awesome app!</h2>
           <div class="card card-compact w-96 bg-base-100 shadow-xl">
             <div class="card-body">
-              <LoginForm />
+              <RegistrationForm />
             </div>
           </div>
-          <div id="login-success" class="h-20">
+          <div id="register-success" class="h-20">
             <div
               role="alert"
               class="alert alert-success w-auto mt-2 invisible"
@@ -31,15 +32,15 @@ app.get('/', (_req, res) => {
   );
 });
 
-const LoginBodySchema = z.object({
-  username: z.string().email('Please enter a valid email'),
+const RegisterBodySchema = z.object({
+  email: z.string().email('Please enter a valid email'),
   password: z.string().min(8, 'Password should be a minimum of 8 characters'),
 });
 
 type Errors = Record<string, { message: string }>;
 
-app.post('/login', (req, res) => {
-  const result = LoginBodySchema.safeParse(req.body);
+app.post('/register', (req, res) => {
+  const result = RegisterBodySchema.safeParse(req.body);
   if (result.success) {
     res.send(
       <div role="alert" class="alert alert-success w-auto mt-2">
@@ -56,7 +57,7 @@ app.post('/login', (req, res) => {
             d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        <span>Login Successful!</span>
+        <span>Registration Successful!</span>
       </div>,
     );
   } else {
@@ -66,8 +67,8 @@ app.post('/login', (req, res) => {
     }
 
     res.send(
-      <LoginForm
-        username={req.body.username}
+      <RegistrationForm
+        email={req.body.email}
         password={req.body.password}
         errors={errors}
       />,
@@ -76,33 +77,34 @@ app.post('/login', (req, res) => {
 });
 
 // components
-type LoginFormProps = {
-  username?: string;
+type ResistrationFormProps = {
+  email?: string;
   password?: string;
   errors?: Errors;
 };
 
-function LoginForm(props: LoginFormProps) {
-  console.log(props.errors);
+function RegistrationForm(props: ResistrationFormProps) {
   return (
     <div>
-      <h2 class="card-title">Login</h2>
-      <form hx-post="/login" hx-target="closest div" hx-swap="outerHTML">
+      <h2 class="card-title">Register</h2>
+      <form hx-post="/register" hx-target="closest div" hx-swap="outerHTML">
         <div class="form-control w-full max-w-xs">
-          <label class="label" for="username">
-            <span class="label-text">What is your username?</span>
+          <label class="label" for="email">
+            <span class="label-text">What is your email?</span>
           </label>
           <input
             type="email"
-            placeholder="enter your username"
-            id="username"
-            name="username"
-            value={props.username}
-            class="input input-bordered w-full max-w-xs"
+            placeholder="enter your email"
+            id="email"
+            name="email"
+            value={props.email}
+            class={clsx('input input-bordered w-full max-w-xs', {
+              'input-error': props.errors?.email,
+            })}
             required
           />
           <p safe class="m-2 text-error h-4">
-            {props.errors?.username && props.errors.username.message}
+            {props.errors?.email && props.errors.email.message}
           </p>
         </div>
 
@@ -116,7 +118,9 @@ function LoginForm(props: LoginFormProps) {
             id="password"
             name="password"
             value={props.password}
-            class="input input-bordered w-full max-w-xs"
+            class={clsx('input input-bordered w-full max-w-xs', {
+              'input-error': props.errors?.password,
+            })}
             required
           />
           <p safe class="m-2 text-error h-4">
@@ -126,7 +130,7 @@ function LoginForm(props: LoginFormProps) {
 
         <div class="mt-2 flex">
           <button class="btn btn-primary" type="submit">
-            Login
+            Register
           </button>
         </div>
       </form>
