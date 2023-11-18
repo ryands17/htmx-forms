@@ -1,0 +1,15 @@
+{
+  "extends": "@tsconfig/node18/tsconfig.json",
+  "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "html.createElement",
+    "jsxFragmentFactory": "html.Fragment",
+    "plugins": [
+      {
+        "name": "@kitajs/ts-html-plugin"
+      }
+    ],
+    "resolveJsonModule": true
+  },
+  "include": ["src"]
+}
