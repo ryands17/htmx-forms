@@ -140,7 +140,7 @@ function BaseHtml({ children }: html.PropsWithChildren) {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Express + HTMX</title>
+    <title>HTMX forms</title>
     <link rel="stylesheet" href="/static/index.css" />
     <script src="/static/htmx@1.9.8.js"></script>
     <script src="/static/hyperscript@0.9.12.js"></script>
