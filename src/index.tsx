@@ -1,4 +1,5 @@
 import html from '@kitajs/html';
+import { z } from 'zod';
 import express from 'express';
 
 export const app = express();
@@ -11,15 +12,129 @@ app.get('/', (_req, res) => {
   res.send(
     <BaseHtml>
       <body>
-        <h2 class="text-2xl">Hello World</h2>
-        <button class="btn btn-primary">Click me</button>
+        <div class="h-screen flex flex-col items-center justify-center">
+          <h2 class="text-3xl">Awesome app!</h2>
+          <div class="card card-compact w-96 bg-base-100 shadow-xl">
+            <div class="card-body">
+              <LoginForm />
+            </div>
+          </div>
+          <div id="login-success" class="h-20">
+            <div
+              role="alert"
+              class="alert alert-success w-auto mt-2 invisible"
+            />
+          </div>
+        </div>
       </body>
     </BaseHtml>,
   );
 });
 
+const LoginBodySchema = z.object({
+  username: z.string().email('Please enter a valid email'),
+  password: z.string().min(8, 'Password should be a minimum of 8 characters'),
+});
+
+type Errors = Record<string, { message: string }>;
+
+app.post('/login', (req, res) => {
+  const result = LoginBodySchema.safeParse(req.body);
+  if (result.success) {
+    res.send(
+      <div role="alert" class="alert alert-success w-auto mt-2">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="stroke-current shrink-0 h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+        <span>Login Successful!</span>
+      </div>,
+    );
+  } else {
+    const errors: Errors = {};
+    for (let error of result.error.errors) {
+      errors[error.path[0]] = { message: error.message };
+    }
+
+    res.send(
+      <LoginForm
+        username={req.body.username}
+        password={req.body.password}
+        errors={errors}
+      />,
+    );
+  }
+});
+
 // components
-export function BaseHtml({ children }: html.PropsWithChildren) {
+type LoginFormProps = {
+  username?: string;
+  password?: string;
+  errors?: Errors;
+};
+
+function LoginForm(props: LoginFormProps) {
+  console.log(props.errors);
+  return (
+    <div>
+      <h2 class="card-title">Login</h2>
+      <form hx-post="/login" hx-target="closest div" hx-swap="outerHTML">
+        <div class="form-control w-full max-w-xs">
+          <label class="label" for="username">
+            <span class="label-text">What is your username?</span>
+          </label>
+          <input
+            type="email"
+            placeholder="enter your username"
+            id="username"
+            name="username"
+            value={props.username}
+            class="input input-bordered w-full max-w-xs"
+            required
+          />
+          <p safe class="m-2 text-error h-4">
+            {props.errors?.username && props.errors.username.message}
+          </p>
+        </div>
+
+        <div class="form-control w-full max-w-xs">
+          <label class="label" for="password">
+            <span class="label-text">What is your password?</span>
+          </label>
+          <input
+            type="password"
+            placeholder="enter your password"
+            id="password"
+            name="password"
+            value={props.password}
+            class="input input-bordered w-full max-w-xs"
+            required
+          />
+          <p safe class="m-2 text-error h-4">
+            {props.errors?.password && props.errors.password.message}
+          </p>
+        </div>
+
+        <div class="mt-2 flex">
+          <button class="btn btn-primary" type="submit">
+            Login
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function BaseHtml({ children }: html.PropsWithChildren) {
   return `<!DOCTYPE html>
   <html lang="en">
   <head>
