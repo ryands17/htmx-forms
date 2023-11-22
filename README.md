@@ -1,6 +1,6 @@
 # HTMX Forms
 
-A simple example of how to valdate forms using HTMX and Zod. It uses Express with TypeScript as the backend and JSX as the templating engine.
+A simple example of how to valdate forms using HTMX and Zod. It uses Express with TypeScript as the backend and JSX as the templating engine. There's also a corresponding blog post explaining how this works: [Form validation with HTMX and Zod](https://ryan17.dev/blog/htmx-forms).
 
 ## Prerequisites
 
